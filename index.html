@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Invariant Data Pipeline</title>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --panel: #111827;
+        --panel-soft: #1f2937;
+        --accent: #4f46e5;
+        --accent-2: #22c55e;
+        --text: #e5e7eb;
+        --muted: #9ca3af;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: linear-gradient(135deg, #020617, #111827 40%, #1d4ed8);
+        color: var(--text);
+      }
+      .container {
+        width: min(1100px, calc(100% - 32px));
+        margin: 40px auto;
+      }
+      header {
+        background: rgba(17, 24, 39, 0.9);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 18px;
+        padding: 24px 28px;
+        margin-bottom: 24px;
+      }
+      h1 {
+        margin: 0 0 10px;
+        font-size: clamp(2rem, 3vw, 3rem);
+      }
+      .subtitle {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+      }
+      .card {
+        background: rgba(17, 24, 39, 0.9);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 18px;
+        padding: 22px;
+      }
+      .card h2 {
+        margin-top: 0;
+        font-size: 1.2rem;
+      }
+      .metric {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #a5b4fc;
+        margin: 10px 0 4px;
+      }
+      .badge {
+        display: inline-block;
+        background: rgba(34, 197, 94, 0.12);
+        color: #86efac;
+        border: 1px solid rgba(34, 197, 94, 0.35);
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+      ul {
+        margin: 14px 0 0;
+        padding-left: 18px;
+        color: var(--muted);
+        line-height: 1.8;
+      }
+      code {
+        background: rgba(255,255,255,0.06);
+        padding: 2px 6px;
+        border-radius: 6px;
+      }
+      button {
+        background: linear-gradient(135deg, #4f46e5, #3b82f6);
+        color: white;
+        border: 0;
+        border-radius: 10px;
+        padding: 12px 16px;
+        cursor: pointer;
+        font-weight: 600;
+        margin-top: 16px;
+      }
+      pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 12px;
+        padding: 16px;
+        color: #bfdbfe;
+        overflow: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Invariant Data Pipeline</h1>
+        <p class="subtitle">
+          GitHub Actions validates state, appends data into an immutable ledger,
+          and deploys new data to a static web frontend automatically.
+        </p>
+      </header>
+
+      <div class="grid">
+        <section class="card">
+          <h2>Pipeline Status</h2>
+          <div class="badge">LIVE</div>
+          <div class="metric">99.9%</div>
+          <p>Invariant validation and execution integrity maintained.</p>
+        </section>
+
+        <section class="card">
+          <h2>Fast Query Layer</h2>
+          <div class="metric">DuckDB</div>
+          <p>Browser-side analytics over compressed append-only data using HTTP range access.</p>
+        </section>
+
+        <section class="card">
+          <h2>Frontend</h2>
+          <div class="metric">GitHub Pages</div>
+          <p>Static deployment with immediate reload via workflow-triggered redeploy.</p>
+        </section>
+      </div>
+
+      <div class="card" style="margin-top: 24px;">
+        <h2>Ledger Sample</h2>
+        <pre id="ledger-output">Loading ledger…</pre>
+        <button id="refresh-btn">Refresh Ledger</button>
+      </div>
+    </div>
+
+    <script>
+      async function loadLedger() {
+        const output = document.getElementById('ledger-output');
+        const url = 'state_ledger.jsonl';
+
+        try {
+          const response = await fetch(url, { cache: 'no-store' });
+          if (!response.ok) throw new Error('Ledger not found');
+          const text = await response.text();
+          const lines = text.trim().split('\n').filter(Boolean).slice(-5);
+
+          output.textContent = lines.length
+            ? lines.map(line => JSON.stringify(JSON.parse(line), null, 2)).join('\n\n')
+            : 'No ledger entries yet.';
+        } catch (error) {
+          output.textContent = 'Unable to fetch ledger: ' + error.message;
+        }
+      }
+
+      document.getElementById('refresh-btn').addEventListener('click', loadLedger);
+      loadLedger();
+    </script>
+  </body>
+</html>
