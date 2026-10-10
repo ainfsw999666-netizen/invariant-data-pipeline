@@ -1,0 +1,8 @@
+{
+  "event": "task_completed",
+  "status": "success",
+  "metadata": {
+    "domain": "analytics",
+    "owner": "developer"
+  }
+}
